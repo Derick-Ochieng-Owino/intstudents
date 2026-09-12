@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+{% block content %}
+<div class="auth-layout" style="margin: -40px -32px -80px;">
+  <div class="auth-hero">
+    <div class="auth-hero-content">
+      <h2>Begin your international journey.</h2>
+      <p>Create your encrypted applicant identity and unlock direct document submission channels.</p>
+    </div>
+  </div>
+  <div class="auth-form-container">
+    <div class="auth-card">
+      <div style="margin-bottom: 32px;">
+        <h1 style="font-size: 2.4rem; margin-bottom: 6px;">Create account</h1>
+        <p style="color: var(--ink-muted); margin: 0;">Set up your secure applicant profile.</p>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<p style="font-size: 0.78rem; color: var(--ink-muted); margin-top: 4px;">{{ field.help_text }}</p>{% endif %}
+            {% for error in field.errors %}<p style="color: #dc2626; font-size: 0.8rem; margin-top: 4px;">{{ error }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="btn" style="width: 100%; margin-top: 8px;">Register Applicant</button>
+      </form>
+
+      <p style="margin-top: 24px; font-size: 0.9rem; color: var(--ink-muted); text-align: center;">
+        Already registered? <a href="{% url 'accounts:login' %}">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

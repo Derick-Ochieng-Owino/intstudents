@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Applicant Dashboard{% endblock %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;">
+  <div>
+    <h1 style="font-size: 2.5rem; margin-bottom: 4px;">Applicant Dossier</h1>
+    <p style="color: var(--ink-muted); margin: 0;">Complete personal verification details and submit required checklist records.</p>
+  </div>
+  <a href="{% url 'accounts:complete_profile' %}" class="btn btn--outline">Edit Profile Details</a>
+</div>
+
+<div class="dashboard-grid">
+  <!-- Progress & Profile Quick Card -->
+  <div class="card" style="display: flex; flex-direction: column; gap: 20px;">
+    <div>
+      <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--ink-muted);">Checklist Status</span>
+      <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px;">
+        <span style="font-size: 2.5rem; font-family: 'Instrument Serif', serif; line-height: 1;">{{ approved }}</span>
+        <span style="color: var(--ink-muted); font-size: 1.1rem;">/ {{ total }} approved</span>
+      </div>
+    </div>
+    
+    <div style="background: var(--bg-canvas); height: 6px; border-radius: 3px; overflow: hidden;">
+      <div style="background: var(--ink-primary); height: 100%; width: {% if total %}{% widthratio approved total 100 %}{% else %}0{% endif %}%;"></div>
+    </div>
+
+    <div style="border-top: 1px solid var(--border); padding-top: 16px; font-size: 0.9rem;">
+      <span style="display: block; font-weight: 600; margin-bottom: 4px;">Encrypted Data Security</span>
+      <span style="color: var(--ink-muted); font-size: 0.85rem;">Passport and identifying numbers are secured via AES-128 cryptographic vaults.</span>
+    </div>
+  </div>
+
+  <!-- Checklist Ledger Items -->
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--surface-subtle);">
+      <h3 style="font-size: 1.25rem;">Required Credentials</h3>
+    </div>
+    
+    <div style="display: flex; flex-direction: column;">
+      {% for document in checklist %}
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: gap: 16px; justify-content: space-between;">
+          <div style="max-width: 420px;">
+            <div style="font-weight: 600; margin-bottom: 2px;">{{ document.document_type.name }}</div>
+            <div style="font-size: 0.85rem; color: var(--ink-muted);">{{ document.document_type.description }}</div>
+            {% if document.status == 'rejected' and document.review_note %}
+              <div style="margin-top: 8px; background: var(--stamp-red-bg); color: var(--stamp-red-fg); padding: 8px 12px; border-radius: 6px; font-size: 0.82rem;">
+                <strong>Reviewer Feedback:</strong> {{ document.review_note }}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 16px;">
+            {% if document.status == 'approved' %}
+              <span class="badge badge--approved">Approved</span>
+            {% elif document.status == 'pending_review' %}
+              <span class="badge badge--pending">Pending Review</span>
+              <a href="{% url 'documents:view' document.pk %}" class="btn btn--outline" style="padding: 6px 12px; font-size: 0.8rem;">View</a>
+            {% elif document.status == 'rejected' %}
+              <span class="badge badge--rejected">Rejected</span>
+              <a href="{% url 'documents:upload' document.document_type.id %}" class="btn" style="padding: 6px 12px; font-size: 0.8rem;">Re-upload</a>
+            {% else %}
+              <span class="badge badge--missing">Not Submitted</span>
+              <a href="{% url 'documents:upload' document.document_type.id %}" class="btn" style="padding: 6px 12px; font-size: 0.8rem;">Upload</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

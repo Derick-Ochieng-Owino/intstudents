@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Reviewer Command Center{% endblock %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;">
+  <div>
+    <h1 style="font-size: 2.5rem; margin-bottom: 4px;">Reviewer Workstation</h1>
+    <p style="color: var(--ink-muted); margin: 0;">Inspect, verify, and evaluate secure student submissions.</p>
+  </div>
+  
+  <div style="display: flex; gap: 8px;">
+    <a href="?status=pending_review" class="btn {% if status_filter != 'pending_review' %}btn--outline{% endif %}" style="padding: 8px 16px; font-size: 0.85rem;">Pending</a>
+    <a href="?status=approved" class="btn {% if status_filter != 'approved' %}btn--outline{% endif %}" style="padding: 8px 16px; font-size: 0.85rem;">Approved</a>
+    <a href="?status=rejected" class="btn {% if status_filter != 'rejected' %}btn--outline{% endif %}" style="padding: 8px 16px; font-size: 0.85rem;">Rejected</a>
+    <a href="?status=all" class="btn {% if status_filter != 'all' %}btn--outline{% endif %}" style="padding: 8px 16px; font-size: 0.85rem;">All</a>
+  </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+  <table class="ledger-table">
+    <thead>
+      <tr>
+        <th>Applicant</th>
+        <th>Document Type</th>
+        <th>Submission Date</th>
+        <th>Status</th>
+        <th style="text-align: right;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for document in documents %}
+        <tr>
+          <td>
+            <div style="font-weight: 600;">{{ document.student.get_full_name|default:document.student.username }}</div>
+            <div style="font-size: 0.8rem; color: var(--ink-muted);">{{ document.student.email }}</div>
+          </td>
+          <td style="font-weight: 500;">{{ document.document_type.name }}</td>
+          <td style="color: var(--ink-muted); font-size: 0.9rem;">{{ document.submitted_at|date:"d M Y, H:i" }}</td>
+          <td>
+            {% if document.status == 'approved' %}<span class="badge badge--approved">Approved</span>{% endif %}
+            {% if document.status == 'rejected' %}<span class="badge badge--rejected">Rejected</span>{% endif %}
+            {% if document.status == 'pending_review' %}<span class="badge badge--pending">Pending Review</span>{% endif %}
+          </td>
+          <td style="text-align: right;">
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <a href="{% url 'documents:view' document.pk %}" class="btn btn--outline" style="padding: 6px 12px; font-size: 0.8rem;">Inspect File</a>
+              <a href="{% url 'documents:review' document.pk %}" class="btn" style="padding: 6px 12px; font-size: 0.8rem;">Evaluate</a>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 48px; color: var(--ink-muted);">No documents match this filter status.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Review — {{ document.document_type.name }}{% endblock %}
+{% block content %}
+<div class="page-intro">
+  <h1>{{ document.document_type.name }}</h1>
+  <p>Submitted by {{ document.student.get_full_name|default:document.student.username }} on {{ document.submitted_at|date:"d M Y, H:i" }}.</p>
+</div>
+
+<p style="margin-bottom: 24px;">
+  <a href="{% url 'documents:view' document.pk %}" class="btn btn--ghost">Open file</a>
+</p>
+
+<div class="form-card">
+  <form method="post">
+    {% csrf_token %}
+    <fieldset>
+      <legend>Decision</legend>
+      {% for choice in form.decision %}
+        <label class="radio-option">{{ choice.tag }} {{ choice.choice_label }}</label>
+      {% endfor %}
+    </fieldset>
+    <label for="{{ form.note.id_for_label }}">Note {% if form.decision %}(required if rejecting){% endif %}</label>
+    {{ form.note }}
+    {% for error in form.note.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    {% if form.non_field_errors %}<p class="field-error">{{ form.non_field_errors.0 }}</p>{% endif %}
+    <div style="margin-top:22px;">
+      <button type="submit" class="btn">Save decision</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Upload — {{ document_type.name }}{% endblock %}
+{% block content %}
+<div class="page-intro">
+  <h1>{{ document_type.name }}</h1>
+  {% if document_type.description %}<p>{{ document_type.description }}</p>{% endif %}
+</div>
+
+{% if document.status == 'rejected' %}
+  <div class="review-note" style="margin-bottom: 24px;">
+    Previously rejected: {{ document.review_note }}
+  </div>
+{% endif %}
+
+<div class="form-card">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="{{ form.file.id_for_label }}">File (PDF, JPG, or PNG)</label>
+    {{ form.file }}
+    {% for error in form.file.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    <p class="helptext">Maximum 10 MB. Make sure text is clearly legible before uploading.</p>
+    <div style="margin-top:22px; display:flex; gap:12px;">
+      <button type="submit" class="btn">Submit for review</button>
+      <a href="{% url 'documents:dashboard' %}" class="btn btn--ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
