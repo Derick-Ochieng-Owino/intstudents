@@ -1,48 +1,347 @@
-{% load static %}<!DOCTYPE html>
+{% load static %}
+
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Checkpoint{% endblock %} — Checkpoint</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
-  <header class="site-header">
-    <div class="site-header__inner">
-      <a href="{% url 'documents:dashboard' %}" class="wordmark">
-        Checkpoint
-        <small>International student document intake</small>
-      </a>
-      <nav class="header-nav">
-        {% if user.is_authenticated %}
-          {% if user.profile.is_reviewer %}
-            <a href="{% url 'documents:reviewer_queue' %}">Review queue</a>
-          {% else %}
-            <a href="{% url 'documents:dashboard' %}">Checklist</a>
-            <a href="{% url 'accounts:complete_profile' %}">My details</a>
-          {% endif %}
-          <form method="post" action="{% url 'accounts:logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="link-button">Log out</button>
-          </form>
-        {% else %}
-          <a href="{% url 'accounts:login' %}">Log in</a>
-          <a href="{% url 'accounts:signup' %}">Sign up</a>
-        {% endif %}
-      </nav>
-    </div>
-  </header>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <main>
-    {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-          <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
+    <title>{% block title %}IntStudents{% endblock %}</title>
+
+    <meta name="description"
+          content="IntStudents document verification portal">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    {% if user.is_authenticated %}
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="Primary">
+
+        <div class="sidebar-brand">
+            <a href="{% url 'documents:dashboard' %}" class="brand-mark" aria-label="IntStudents home">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 2 2 7l10 5 10-5-10-5Z"/>
+                    <path d="m2 17 10 5 10-5"/>
+                    <path d="m2 12 10 5 10-5"/>
+                </svg>
+            </a>
+
+            <div class="brand-copy">
+                <strong>IntStudents</strong>
+                <span>Verification Portal</span>
+            </div>
+
+            <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close navigation">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main navigation -->
+        <nav class="sidebar-nav-wrap" aria-label="Main">
+            <span class="sidebar-label">Main</span>
+
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="{% url 'documents:dashboard' %}"
+                       class="nav-item {% if request.resolver_match.app_name == 'documents' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                       {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>
+                        <span class="nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="9" rx="1.5"/>
+                                <rect x="14" y="3" width="7" height="5" rx="1.5"/>
+                                <rect x="14" y="12" width="7" height="9" rx="1.5"/>
+                                <rect x="3" y="16" width="7" height="5" rx="1.5"/>
+                            </svg>
+                        </span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'accounts:complete_profile' %}"
+                       class="nav-item {% if request.resolver_match.url_name == 'complete_profile' %}active{% endif %}"
+                       {% if request.resolver_match.url_name == 'complete_profile' %}aria-current="page"{% endif %}>
+                        <span class="nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="3.5"/>
+                                <path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>
+                            </svg>
+                        </span>
+                        <span class="nav-label">My Profile</span>
+                    </a>
+                </li>
+
+                {% if user.profile.is_admin or user.profile.is_reviewer %}
+                <li>
+                    <a href="{% url 'documents:admin_dashboard' %}"
+                       class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"
+                       {% if request.resolver_match.url_name == 'admin_dashboard' %}aria-current="page"{% endif %}>
+                        <span class="nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3 3 7.5V13c0 4.5 3.5 7.5 9 8 5.5-.5 9-3.5 9-8V7.5L12 3Z"/>
+                                <path d="m9 12 2 2 4-4"/>
+                            </svg>
+                        </span>
+                        <span class="nav-label">Admin dashboard</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Review navigation -->
+        {% if user.profile.is_reviewer %}
+        <nav class="sidebar-nav-wrap" aria-label="Review">
+            <span class="sidebar-label">Review</span>
+
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="{% url 'documents:reviewer_queue' %}"
+                       class="nav-item {% if request.resolver_match.url_name == 'reviewer_queue' %}active{% endif %}"
+                       {% if request.resolver_match.url_name == 'reviewer_queue' %}aria-current="page"{% endif %}>
+                        <span class="nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 11 12 14 20 6"/>
+                                <path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/>
+                            </svg>
+                        </span>
+                        <span class="nav-label">Review Queue</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+
+        <!-- Bottom -->
+        <div class="sidebar-bottom">
+            <a href="mailto:support@intstudents.example" class="sidebar-help">
+                <span class="help-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.4"/>
+                        <path d="M12 17.5h.01"/>
+                    </svg>
+                </span>
+                <span class="help-copy">
+                    <strong>Need help?</strong>
+                    <span>Contact the verification team</span>
+                </span>
+            </a>
+
+            <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/>
+                            <path d="M10 17 5 12l5-5"/>
+                            <path d="M5 12h11"/>
+                        </svg>
+                    </span>
+                    <span class="nav-label">Sign out</span>
+                </button>
+            </form>
+        </div>
+
+    </aside>
+
     {% endif %}
 
-    {% block content %}{% endblock %}
-  </main>
+    <main class="{% if user.is_authenticated %}main-content{% else %}public-content{% endif %}">
+
+        {% if user.is_authenticated %}
+        <header class="topbar">
+
+            <button
+                type="button"
+                class="mobile-menu-button"
+                id="mobileMenuButton"
+                aria-label="Open navigation"
+                aria-expanded="false"
+                aria-controls="sidebar"
+            >
+                ☰
+            </button>
+
+            <div class="topbar-title">
+                {% block page_title %}{% endblock %}
+            </div>
+
+            <div class="topbar-user">
+
+                <div class="user-avatar">
+                    {{ user.username|first|upper }}
+                </div>
+
+                <div class="user-details">
+                    <strong>{{ user.username }}</strong>
+                    <span>{{ user.email }}</span>
+                </div>
+
+            </div>
+
+        </header>
+        {% endif %}
+
+        <!-- Django messages -->
+        {% if messages %}
+        <div class="messages-container">
+
+            {% for message in messages %}
+            <div class="message message-{{ message.tags|default:'info' }}">
+
+                <span class="message-icon">
+                    {% if message.tags == 'success' %}
+                        ✓
+                    {% elif message.tags == 'error' %}
+                        !
+                    {% else %}
+                        i
+                    {% endif %}
+                </span>
+
+                <span>{{ message }}</span>
+
+                <button
+                    type="button"
+                    class="message-close"
+                    onclick="this.parentElement.remove()"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+            {% endfor %}
+
+        </div>
+        {% endif %}
+
+        <div class="page-container">
+            {% block content %}{% endblock %}
+        </div>
+
+    </main>
+
+</div>
+
+<script src="{% static 'js/app.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const sidebar = document.querySelector(".sidebar");
+    const menuButton = document.querySelector(".mobile-menu-button");
+    const closeButton = document.querySelector(".sidebar-close");
+    const overlay = document.querySelector(".sidebar-overlay");
+
+    if (!sidebar || !menuButton) {
+        return;
+    }
+
+    function openSidebar() {
+        sidebar.classList.add("open");
+
+        if (overlay) {
+            overlay.classList.add("active");
+        }
+
+        document.body.classList.add("sidebar-open");
+
+        menuButton.setAttribute("aria-expanded", "true");
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove("open");
+
+        if (overlay) {
+            overlay.classList.remove("active");
+        }
+
+        document.body.classList.remove("sidebar-open");
+
+        menuButton.setAttribute("aria-expanded", "false");
+    }
+
+    menuButton.addEventListener("click", function () {
+
+        if (sidebar.classList.contains("open")) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+
+    });
+
+    if (closeButton) {
+        closeButton.addEventListener("click", closeSidebar);
+    }
+
+    if (overlay) {
+        overlay.addEventListener("click", closeSidebar);
+    }
+
+    /*
+     * Close the mobile sidebar after clicking a navigation link.
+     */
+    sidebar.querySelectorAll("a").forEach(function (link) {
+
+        link.addEventListener("click", function () {
+
+            if (window.innerWidth <= 900) {
+                closeSidebar();
+            }
+
+        });
+
+    });
+
+    /*
+     * Close sidebar when ESC is pressed.
+     */
+    document.addEventListener("keydown", function (event) {
+
+        if (event.key === "Escape") {
+            closeSidebar();
+        }
+
+    });
+
+    /*
+     * If the screen becomes desktop-sized,
+     * reset the mobile state.
+     */
+    window.addEventListener("resize", function () {
+
+        if (window.innerWidth > 900) {
+            closeSidebar();
+        }
+
+    });
+
+});
+</script>
 </body>
 </html>

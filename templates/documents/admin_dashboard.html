@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <div class="eyebrow">Administration</div>
+        <h1>Verification dashboard</h1>
+        <p>
+            Manage students, documents and verification requests.
+        </p>
+    </div>
+
+    <div class="page-header-actions">
+        <a
+            href="{% url 'documents:reviewer_queue' %}"
+            class="btn btn-primary"
+        >
+            Review queue
+        </a>
+    </div>
+</div>
+
+
+<!-- Statistics -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <span class="stat-label">Students</span>
+        <strong>{{ total_students }}</strong>
+        <span class="stat-description">
+            Registered students
+        </span>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Documents</span>
+        <strong>{{ total_documents }}</strong>
+        <span class="stat-description">
+            Submitted and tracked
+        </span>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Pending review</span>
+        <strong>{{ pending_count }}</strong>
+        <span class="stat-description">
+            Require attention
+        </span>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Approved</span>
+        <strong>{{ approved_count }}</strong>
+        <span class="stat-description">
+            Successfully verified
+        </span>
+    </div>
+
+</div>
+
+
+<!-- Pending documents -->
+
+<section class="card">
+
+    <div class="card-header">
+        <div>
+            <h2>Pending documents</h2>
+            <p>
+                Documents waiting for reviewer action.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'documents:reviewer_queue' %}"
+            class="text-link"
+        >
+            View all
+        </a>
+    </div>
+
+
+    {% if pending_documents %}
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Document</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for document in pending_documents|slice:":10" %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ document.student.get_full_name|default:document.student.username }}
+                            </strong>
+
+                            <span class="table-secondary">
+                                {{ document.student.email }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ document.document_type.name }}
+                        </td>
+
+                        <td>
+                            {{ document.submitted_at|date:"d M Y, H:i" }}
+                        </td>
+
+                        <td>
+                            <span class="status-badge status-pending">
+                                Pending review
+                            </span>
+                        </td>
+
+                        <td>
+                            <a
+                                href="{% url 'documents:review' document.id %}"
+                                class="btn btn-small btn-primary"
+                            >
+                                Review
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>No pending documents</h3>
+            <p>
+                There are currently no documents waiting for review.
+            </p>
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+<!-- Students -->
+
+<section class="card">
+
+    <div class="card-header">
+        <div>
+            <h2>Students</h2>
+            <p>
+                Recently updated student profiles.
+            </p>
+        </div>
+    </div>
+
+    {% if students %}
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Institution</th>
+                        <th>Course</th>
+                        <th>Verification</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for student in students|slice:":10" %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ student.full_name }}
+                            </strong>
+
+                            <span class="table-secondary">
+                                {{ student.user.email }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ student.institution_name }}
+                        </td>
+
+                        <td>
+                            {{ student.course }}
+                        </td>
+
+                        <td>
+
+                            {% if student.verification_status == "verified" %}
+
+                                <span class="status-badge status-approved">
+                                    Verified
+                                </span>
+
+                            {% elif student.verification_status == "action_required" %}
+
+                                <span class="status-badge status-rejected">
+                                    Action required
+                                </span>
+
+                            {% elif student.verification_status == "under_review" %}
+
+                                <span class="status-badge status-pending">
+                                    Under review
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge status-neutral">
+                                    {{ student.get_verification_status_display }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>No students yet</h3>
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

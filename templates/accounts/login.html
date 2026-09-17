@@ -1,40 +1,126 @@
 {% extends "base.html" %}
-{% block title %}Sign in to Checkpoint{% endblock %}
+{% load static %}
+
+{% block title %}Sign in{% endblock %}
+
 {% block content %}
-<div class="auth-layout" style="margin: -40px -32px -80px;">
-  <div class="auth-hero">
-    <div class="auth-hero-content">
-      <h2>Global admissions, structured securely.</h2>
-      <p>Submit your verified credentials, monitor evaluation progress in real-time, and securely sync with global enrollment databases.</p>
-    </div>
-  </div>
-  <div class="auth-form-container">
-    <div class="auth-card">
-      <div style="margin-bottom: 32px;">
-        <h1 style="font-size: 2.4rem; margin-bottom: 6px;">Welcome back</h1>
-        <p style="color: var(--ink-muted); margin: 0;">Enter your credentials to access your dossier.</p>
-      </div>
 
-      <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="{{ form.username.id_for_label }}">Username</label>
-          {{ form.username }}
-        </div>
-        <div class="form-group">
-          <label for="{{ form.password.id_for_label }}">Password</label>
-          {{ form.password }}
-        </div>
-        {% if form.non_field_errors %}
-          <p style="color: #dc2626; font-size: 0.85rem; margin-bottom: 16px;">{{ form.non_field_errors.0 }}</p>
-        {% endif %}
-        <button type="submit" class="btn" style="width: 100%; margin-top: 8px;">Sign In</button>
-      </form>
+<div class="auth-page">
 
-      <p style="margin-top: 24px; font-size: 0.9rem; color: var(--ink-muted); text-align: center;">
-        Don't have an active dossier? <a href="{% url 'accounts:signup' %}">Create an account</a>
-      </p>
-    </div>
-  </div>
+    <!-- LEFT: IMAGE -->
+    <section class="auth-image-panel">
+        <div class="auth-image-overlay"></div>
+
+        <div class="auth-image-content">
+            <div class="auth-image-brand">
+                <span>INTERNATIONAL STUDENTS</span>
+            </div>
+
+            <div>
+                <h1>
+                    Your academic identity,
+                    securely documented.
+                </h1>
+
+                <p>
+                    Manage your student information and verification
+                    documents through one secure portal.
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- RIGHT: LOGIN -->
+    <section class="auth-form-panel">
+
+        <div class="auth-form-wrapper">
+
+            <div class="auth-logo">
+                <img
+                    src="{% static 'images/jkuat-logo.png' %}"
+                    alt="Jomo Kenyatta University of Agriculture and Technology"
+                >
+            </div>
+
+            <div class="auth-heading">
+                <p class="auth-eyebrow">INTERNATIONAL STUDENTS</p>
+
+                <h2>Welcome back</h2>
+
+                <p>
+                    Sign in to continue to your student verification portal.
+                </p>
+            </div>
+
+
+            <form method="post" class="auth-form">
+
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="auth-error">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                {% endif %}
+
+
+                <div class="auth-field">
+                    <label for="{{ form.username.id_for_label }}">
+                        Email or username
+                    </label>
+
+                    {{ form.username }}
+
+                    {% for error in form.username.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+
+                <div class="auth-field">
+                    <div class="auth-label-row">
+                        <label for="{{ form.password.id_for_label }}">
+                            Password
+                        </label>
+
+                        <a href="#">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    {{ form.password }}
+
+                    {% for error in form.password.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+
+                <button type="submit" class="auth-submit">
+                    Sign in
+                </button>
+
+            </form>
+
+
+            <div class="auth-switch">
+                <span>Don't have an account?</span>
+
+                <a href="{% url 'accounts:signup' %}">
+                    Create an account
+                </a>
+            </div>
+
+
+            <p class="auth-security">
+                Secure student authentication
+            </p>
+
+        </div>
+
+    </section>
+
 </div>
+
 {% endblock %}

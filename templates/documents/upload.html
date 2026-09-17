@@ -1,28 +1,128 @@
 {% extends "base.html" %}
-{% block title %}Upload — {{ document_type.name }}{% endblock %}
+
+{% block title %}Upload Document{% endblock %}
+
 {% block content %}
-<div class="page-intro">
-  <h1>{{ document_type.name }}</h1>
-  {% if document_type.description %}<p>{{ document_type.description }}</p>{% endif %}
-</div>
 
-{% if document.status == 'rejected' %}
-  <div class="review-note" style="margin-bottom: 24px;">
-    Previously rejected: {{ document.review_note }}
-  </div>
-{% endif %}
+<div class="page-header">
+    <div>
+        <div class="eyebrow">Document verification</div>
 
-<div class="form-card">
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label for="{{ form.file.id_for_label }}">File (PDF, JPG, or PNG)</label>
-    {{ form.file }}
-    {% for error in form.file.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
-    <p class="helptext">Maximum 10 MB. Make sure text is clearly legible before uploading.</p>
-    <div style="margin-top:22px; display:flex; gap:12px;">
-      <button type="submit" class="btn">Submit for review</button>
-      <a href="{% url 'documents:dashboard' %}" class="btn btn--ghost">Cancel</a>
+        <h1>Upload document</h1>
+
+        <p>
+            Submit your {{ document_type.name }} for verification.
+        </p>
     </div>
-  </form>
 </div>
+
+
+<div class="upload-layout">
+
+    <section class="card upload-card">
+
+        <div class="upload-icon">
+            ↑
+        </div>
+
+        <h2>{{ document_type.name }}</h2>
+
+        {% if document_type.description %}
+            <p class="muted">
+                {{ document_type.description }}
+            </p>
+        {% endif %}
+
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+            data-loading-form
+        >
+
+            {% csrf_token %}
+
+            <label for="id_file" class="upload-dropzone">
+
+                <span class="upload-dropzone-icon">
+                    📄
+                </span>
+
+                <strong>
+                    Choose your document
+                </strong>
+
+                <span>
+                    PDF, JPG, JPEG or PNG
+                </span>
+
+                <small>
+                    Maximum file size: 10 MB
+                </small>
+
+                <input
+                    type="file"
+                    name="file"
+                    id="id_file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    required
+                >
+
+            </label>
+
+
+            <div
+                id="selected-file"
+                class="selected-file"
+                hidden
+            ></div>
+
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'documents:dashboard' %}"
+                    class="btn btn-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Upload document
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <aside class="card upload-info">
+
+        <h3>Before you upload</h3>
+
+        <ul>
+            <li>Make sure the document is readable.</li>
+            <li>Ensure all important information is visible.</li>
+            <li>Do not upload password-protected files.</li>
+            <li>Use the correct document requested above.</li>
+        </ul>
+
+        <div class="security-note">
+            <strong>Secure submission</strong>
+
+            <p>
+                Your document will be stored securely and reviewed
+                by an authorized IntStudents reviewer.
+            </p>
+        </div>
+
+    </aside>
+
+</div>
+
 {% endblock %}

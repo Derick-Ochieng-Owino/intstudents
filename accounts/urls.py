@@ -3,11 +3,40 @@ from django.urls import path
 
 from . import views
 
-app_name = 'accounts'
+
+app_name = "accounts"
+
 
 urlpatterns = [
-    path('signup/', views.signup, name='signup'),
-    path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('profile/', views.complete_profile, name='complete_profile'),
+    path(
+        "signup/",
+        views.signup,
+        name="signup",
+    ),
+
+    path(
+        "verification-sent/",
+        views.verification_sent,
+        name="verification_sent",
+    ),
+
+    path(
+        "verify-email/<str:token>/",
+        views.verify_email,
+        name="verify_email",
+    ),
+
+    path("login/", views.login_view, name="login"),
+    
+    path(
+        "logout/",
+        auth_views.LogoutView.as_view(),
+        name="logout",
+    ),
+
+    path(
+        "profile/",
+        views.complete_profile,
+        name="complete_profile",
+    ),
 ]

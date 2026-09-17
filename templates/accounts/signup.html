@@ -1,37 +1,122 @@
 {% extends "base.html" %}
-{% block title %}Create Account{% endblock %}
+{% load static %}
+
+{% block title %}Create account{% endblock %}
+
 {% block content %}
-<div class="auth-layout" style="margin: -40px -32px -80px;">
-  <div class="auth-hero">
-    <div class="auth-hero-content">
-      <h2>Begin your international journey.</h2>
-      <p>Create your encrypted applicant identity and unlock direct document submission channels.</p>
-    </div>
-  </div>
-  <div class="auth-form-container">
-    <div class="auth-card">
-      <div style="margin-bottom: 32px;">
-        <h1 style="font-size: 2.4rem; margin-bottom: 6px;">Create account</h1>
-        <p style="color: var(--ink-muted); margin: 0;">Set up your secure applicant profile.</p>
-      </div>
 
-      <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
-          <div class="form-group">
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}<p style="font-size: 0.78rem; color: var(--ink-muted); margin-top: 4px;">{{ field.help_text }}</p>{% endif %}
-            {% for error in field.errors %}<p style="color: #dc2626; font-size: 0.8rem; margin-top: 4px;">{{ error }}</p>{% endfor %}
-          </div>
-        {% endfor %}
-        <button type="submit" class="btn" style="width: 100%; margin-top: 8px;">Register Applicant</button>
-      </form>
+<div class="auth-page auth-page-signup">
 
-      <p style="margin-top: 24px; font-size: 0.9rem; color: var(--ink-muted); text-align: center;">
-        Already registered? <a href="{% url 'accounts:login' %}">Sign in</a>
-      </p>
-    </div>
-  </div>
+    <!-- LEFT: IMAGE -->
+    <section class="auth-image-panel">
+        <div class="auth-image-overlay"></div>
+
+        <div class="auth-image-content">
+
+            <div class="auth-image-brand">
+                <span>INTERNATIONAL STUDENTS</span>
+            </div>
+
+            <div>
+                <h1>
+                    Begin your verification journey.
+                </h1>
+
+                <p>
+                    Create your secure student account and keep your
+                    academic documentation organized in one place.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- RIGHT: SIGNUP -->
+    <section class="auth-form-panel">
+
+        <div class="auth-form-wrapper auth-signup-wrapper">
+
+            <div class="auth-logo">
+                <img
+                    src="{% static 'images/jkuat-logo.png' %}"
+                    alt="Jomo Kenyatta University of Agriculture and Technology"
+                >
+            </div>
+
+            <div class="auth-heading">
+                <p class="auth-eyebrow">NEW ACCOUNT</p>
+
+                <h2>Create account</h2>
+
+                <p>
+                    Set up your secure student profile to begin.
+                </p>
+            </div>
+
+
+            <form method="post" class="auth-form">
+
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="auth-error">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                {% endif %}
+
+
+                {% for field in form %}
+
+                    <div class="auth-field">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <p class="auth-help">
+                                {{ field.help_text }}
+                            </p>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <p class="field-error">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+
+                    </div>
+
+                {% endfor %}
+
+
+                <button type="submit" class="auth-submit">
+                    Create account
+                </button>
+
+            </form>
+
+
+            <div class="auth-switch">
+                <span>Already have an account?</span>
+
+                <a href="{% url 'accounts:login' %}">
+                    Sign in
+                </a>
+            </div>
+
+
+            <p class="auth-security">
+                Your account is protected by secure authentication.
+            </p>
+
+        </div>
+
+    </section>
+
 </div>
+
 {% endblock %}
